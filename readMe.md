@@ -1,17 +1,35 @@
-✅ Create users table
+## Topics Covered Today
 
-➡️ Create accounts table
+- ✅ MySQL Setup with Docker
 
-➡️ Create transactions table
+- ✅ Database Connection Pool
 
-➡️ Insert sample data
+- ✅ Environment Configuration
 
-➡️ Practice JOIN queries
+- ✅ users Table Design
 
-➡️ Build Register API
+- ✅ accounts Table Design
 
-➡️ Build Login API
+- ✅ transactions Table Design
 
-➡️ Build Accounts API
+- ✅ INSERT Queries
 
-➡️ Build Transactions API
+- ✅ JOIN Queries
+
+- ✅ Aggregate Functions (COUNT, SUM, GROUP BY)
+
+- ✅ Repository Layer
+
+- ✅ Service Layer
+
+- ✅ Controller Layer
+
+- ✅ Route Layer
+
+- ✅ User Registration API
+
+- ✅ Password Hashing with bcrypt
+
+- ✅ User Login API
+
+- ✅ JWT Token Generation
