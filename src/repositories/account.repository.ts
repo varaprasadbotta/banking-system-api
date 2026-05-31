@@ -33,3 +33,19 @@ export const getUserAccounts = async (userId: number): Promise<Account[]> => {
 
   return rows as Account[];
 };
+
+export const findAccountsByUserId = async (
+  userId: number,
+): Promise<Account[]> => {
+  const [rows] = await pool.execute<(Account & RowDataPacket)[]>(
+    `
+        SELECT *
+        FROM accounts
+        WHERE user_id = ?
+        ORDER BY created_at DESC
+        `,
+    [userId],
+  );
+
+  return rows;
+};

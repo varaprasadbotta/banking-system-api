@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 
-import { createBankAccount } from "../services/account.service";
+import { createBankAccount, getMyAccounts } from "../services/account.service";
 
 import { createAccountSchema } from "../validators/account.validator";
 
@@ -31,6 +31,31 @@ export const createAccount = async (
       HTTP_STATUS.CREATED,
       "Account created successfully",
       account,
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAccounts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      throw new AppError("Unauthorized", HTTP_STATUS.UNAUTHORIZED);
+    }
+
+    const accounts = await getMyAccounts(userId);
+
+    return sendSuccessResponse(
+      res,
+      HTTP_STATUS.OK,
+      "Accounts fetched successfully",
+      accounts,
     );
   } catch (error) {
     next(error);

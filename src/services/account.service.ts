@@ -1,5 +1,6 @@
 import {
   createAccount,
+  findAccountsByUserId,
   getUserAccounts,
 } from "../repositories/account.repository";
 
@@ -34,4 +35,15 @@ export const createBankAccount = async (
     accountId,
     accountNumber,
   };
+};
+
+export const getMyAccounts = async (userId: number) => {
+  const accounts = await findAccountsByUserId(userId);
+
+  return accounts.map((account) => ({
+    id: account.id,
+    accountNumber: account.account_number,
+    accountType: account.account_type,
+    balance: Number(account.balance),
+  }));
 };
