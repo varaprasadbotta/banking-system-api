@@ -1,6 +1,7 @@
 import express, { Express } from "express";
 import authRouter from "./routes/auth.routes";
 import { errorMiddleware } from "./middleware/error.middleware";
+import accountRouter from "./routes/account.routes";
 
 const app: Express = express();
 
@@ -10,6 +11,7 @@ const app: Express = express();
 app.use(express.json());
 
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/accounts", accountRouter);
 
 /**
  * Health Check Route
