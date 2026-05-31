@@ -69,3 +69,37 @@ export const findAccountById = async (
 
   return rows[0];
 };
+
+export const updateAccountBalance = async (
+  accountId: number,
+  balance: number,
+): Promise<void> => {
+  await pool.execute(
+    `
+      UPDATE accounts
+      SET balance = ?
+      WHERE id = ?
+      `,
+    [balance, accountId],
+  );
+};
+
+export const findAccountByNumber = async (
+  accountNumber: number,
+): Promise<Account | null> => {
+  const [rows] = await pool.execute<(Account & RowDataPacket)[]>(
+    `
+        SELECT *
+        FROM accounts
+        WHERE account_number = ?
+        LIMIT 1
+        `,
+    [accountNumber],
+  );
+
+  if (rows.length === 0) {
+    return null;
+  }
+
+  return rows[0];
+};

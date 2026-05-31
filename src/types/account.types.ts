@@ -11,3 +11,7 @@ export interface Account {
   created_at: Date;
   updated_at: Date;
 }
+
+export interface DepositPayload {
+  amount: number;
+}
