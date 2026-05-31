@@ -1,5 +1,6 @@
 import {
   createAccount,
+  findAccountById,
   findAccountsByUserId,
   getUserAccounts,
 } from "../repositories/account.repository";
@@ -46,4 +47,23 @@ export const getMyAccounts = async (userId: number) => {
     accountType: account.account_type,
     balance: Number(account.balance),
   }));
+};
+
+export const getAccountDetails = async (accountId: number, userId: number) => {
+  const account = await findAccountById(accountId);
+
+  if (!account) {
+    throw new AppError("Account not found", HTTP_STATUS.NOT_FOUND);
+  }
+
+  if (account.user_id !== userId) {
+    throw new AppError("Access denied", HTTP_STATUS.FORBIDDEN);
+  }
+
+  return {
+    id: account.id,
+    accountNumber: account.account_number,
+    accountType: account.account_type,
+    balance: Number(account.balance),
+  };
 };

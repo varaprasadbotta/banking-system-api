@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 
-import { createBankAccount, getMyAccounts } from "../services/account.service";
+import {
+  createBankAccount,
+  getAccountDetails,
+  getMyAccounts,
+} from "../services/account.service";
 
 import { createAccountSchema } from "../validators/account.validator";
 
@@ -56,6 +60,33 @@ export const getAccounts = async (
       HTTP_STATUS.OK,
       "Accounts fetched successfully",
       accounts,
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAccount = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const accountId = Number(req.params.accountId);
+
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      throw new AppError("Unauthorized", HTTP_STATUS.UNAUTHORIZED);
+    }
+
+    const account = await getAccountDetails(accountId, userId);
+
+    return sendSuccessResponse(
+      res,
+      HTTP_STATUS.OK,
+      "Account fetched successfully",
+      account,
     );
   } catch (error) {
     next(error);

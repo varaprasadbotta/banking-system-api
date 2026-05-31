@@ -49,3 +49,23 @@ export const findAccountsByUserId = async (
 
   return rows;
 };
+
+export const findAccountById = async (
+  accountId: number,
+): Promise<Account | null> => {
+  const [rows] = await pool.execute<(Account & RowDataPacket)[]>(
+    `
+        SELECT *
+        FROM accounts
+        WHERE id = ?
+        LIMIT 1
+        `,
+    [accountId],
+  );
+
+  if (rows.length === 0) {
+    return null;
+  }
+
+  return rows[0];
+};
