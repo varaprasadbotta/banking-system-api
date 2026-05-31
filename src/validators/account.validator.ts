@@ -8,5 +8,9 @@ export const depositSchema = z.object({
   amount: z.number().positive(),
 });
 
+export const withdrawSchema = z.object({
+  amount: z.number().positive(),
+});
+
 export type CreateAccountInput = z.infer<typeof createAccountSchema>;
 export type DepositInput = z.infer<typeof depositSchema>;

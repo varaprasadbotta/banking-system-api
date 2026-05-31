@@ -1,8 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 
-import { depositMoney as depositMoneyService } from "../services/transaction.service";
+import {
+  depositMoney as depositMoneyService,
+  withdrawMoney,
+} from "../services/transaction.service";
 
-import { depositSchema } from "../validators/account.validator";
+import { depositSchema, withdrawSchema } from "../validators/account.validator";
 
 import { sendSuccessResponse } from "../utils/response";
 
@@ -16,7 +19,7 @@ export const deposit = async (
   next: NextFunction,
 ) => {
   try {
-    const accountNumber = req.params.accountId;
+    const accountNumber = Number(req.params.accountId);
 
     const userId = req.user?.userId;
 
@@ -32,6 +35,35 @@ export const deposit = async (
       res,
       HTTP_STATUS.OK,
       "Amount deposited successfully",
+      result,
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const withdraw = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const accountNumber = Number(req.body.accountNumber);
+
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      throw new AppError("Unauthorized", HTTP_STATUS.UNAUTHORIZED);
+    }
+
+    const { amount } = withdrawSchema.parse(req.body);
+
+    const result = await withdrawMoney(accountNumber, amount, userId);
+
+    return sendSuccessResponse(
+      res,
+      HTTP_STATUS.OK,
+      "Amount withdrawn successfully",
       result,
     );
   } catch (error) {
