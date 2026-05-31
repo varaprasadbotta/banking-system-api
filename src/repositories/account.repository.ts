@@ -85,7 +85,7 @@ export const updateAccountBalance = async (
 };
 
 export const findAccountByNumber = async (
-  accountNumber: number,
+  accountNumber: string,
 ): Promise<Account | null> => {
   const [rows] = await pool.execute<(Account & RowDataPacket)[]>(
     `
@@ -102,4 +102,37 @@ export const findAccountByNumber = async (
   }
 
   return rows[0];
+};
+
+import { PoolConnection } from "mysql2/promise";
+
+export const findAccountByNumberTx = async (
+  connection: PoolConnection,
+  accountNumber: string,
+) => {
+  const [rows]: any = await connection.query(
+    `
+      SELECT *
+      FROM accounts
+      WHERE account_number = ?
+    `,
+    [accountNumber],
+  );
+
+  return rows[0];
+};
+
+export const updateBalanceTx = async (
+  connection: PoolConnection,
+  accountId: number,
+  balance: number,
+) => {
+  await connection.query(
+    `
+      UPDATE accounts
+      SET balance = ?
+      WHERE id = ?
+    `,
+    [balance, accountId],
+  );
 };

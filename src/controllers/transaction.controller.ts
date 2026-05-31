@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 
 import {
   depositMoney as depositMoneyService,
+  transferMoney,
   withdrawMoney,
 } from "../services/transaction.service";
 
@@ -12,6 +13,7 @@ import { sendSuccessResponse } from "../utils/response";
 import { HTTP_STATUS } from "../constants/http-status";
 
 import { AppError } from "../utils/app-error";
+import { transferSchema } from "../validators/transaction.validator";
 
 export const deposit = async (
   req: Request,
@@ -19,7 +21,7 @@ export const deposit = async (
   next: NextFunction,
 ) => {
   try {
-    const accountNumber = Number(req.params.accountId);
+    const accountNumber = req.params.accountId as string;
 
     const userId = req.user?.userId;
 
@@ -48,7 +50,7 @@ export const withdraw = async (
   next: NextFunction,
 ) => {
   try {
-    const accountNumber = Number(req.body.accountNumber);
+    const accountNumber = req.body.accountNumber;
 
     const userId = req.user?.userId;
 
@@ -64,6 +66,38 @@ export const withdraw = async (
       res,
       HTTP_STATUS.OK,
       "Amount withdrawn successfully",
+      result,
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const transferController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      throw new AppError("Unauthorized", HTTP_STATUS.UNAUTHORIZED);
+    }
+
+    const validatedData = transferSchema.parse(req.body);
+
+    const result = await transferMoney(
+      validatedData.fromAccountNumber,
+      validatedData.toAccountNumber,
+      validatedData.amount,
+      userId,
+    );
+
+    return sendSuccessResponse(
+      res,
+      HTTP_STATUS.OK,
+      "Transfer successful",
       result,
     );
   } catch (error) {

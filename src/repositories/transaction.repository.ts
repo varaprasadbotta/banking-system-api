@@ -36,3 +36,29 @@ export const createTransaction = async (
 
   return result.insertId;
 };
+
+import { PoolConnection } from "mysql2/promise";
+
+export const createTransactionTx = async (
+  connection: PoolConnection,
+  fromAccountId: number | null,
+  toAccountId: number | null,
+  type: string,
+  amount: number,
+  description: string,
+) => {
+  await connection.query(
+    `
+      INSERT INTO transactions
+      (
+        from_account_id,
+        to_account_id,
+        transaction_type,
+        amount,
+        description
+      )
+      VALUES (?, ?, ?, ?, ?)
+    `,
+    [fromAccountId, toAccountId, type, amount, description],
+  );
+};
