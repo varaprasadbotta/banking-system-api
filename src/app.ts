@@ -1,5 +1,6 @@
 import express, { Express } from "express";
 import authRouter from "./routes/auth.routes";
+import { errorMiddleware } from "./middleware/error.middleware";
 
 const app: Express = express();
 
@@ -19,5 +20,7 @@ app.get("/health", (_req, res) => {
     message: "Banking System API is running",
   });
 });
+
+app.use(errorMiddleware);
 
 export default app;

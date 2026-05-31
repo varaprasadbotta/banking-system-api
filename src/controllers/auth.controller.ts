@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 
 import { registerUser } from "../services/auth.service";
 
@@ -6,8 +6,16 @@ import { registerUserSchema } from "../validators/auth.validator";
 
 import { loginUser } from "../services/auth.service";
 import { loginUserSchema } from "../validators/auth.validator";
+import { getProfile } from "../services/auth.service";
+import { AppError } from "../utils/app-error";
+import { HTTP_STATUS } from "../constants/http-status";
+import { sendSuccessResponse } from "../utils/response";
 
-export const register = async (req: Request, res: Response): Promise<void> => {
+export const register = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   try {
     const validatedData = registerUserSchema.parse(req.body);
 
@@ -23,14 +31,15 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   } catch (error) {
     console.error(error);
 
-    res.status(400).json({
-      success: false,
-      message: error instanceof Error ? error.message : "Something went wrong",
-    });
+    next(error);
   }
 };
 
-export const login = async (req: Request, res: Response): Promise<void> => {
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   try {
     const validatedData = loginUserSchema.parse(req.body);
 
@@ -46,9 +55,31 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   } catch (error) {
     console.error(error);
 
-    res.status(401).json({
-      success: false,
-      message: error instanceof Error ? error.message : "Something went wrong",
-    });
+    next(error);
+  }
+};
+
+export const profile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      throw new AppError("Unauthorized", HTTP_STATUS.UNAUTHORIZED);
+    }
+
+    const userProfile = await getProfile(userId);
+
+    return sendSuccessResponse(
+      res,
+      HTTP_STATUS.OK,
+      "Profile fetched successfully",
+      userProfile,
+    );
+  } catch (error) {
+    next(error);
   }
 };

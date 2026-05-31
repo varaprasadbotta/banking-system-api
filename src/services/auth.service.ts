@@ -7,6 +7,9 @@ import { LoginUserPayload, RegisterUserPayload } from "../types/auth.types";
 import jwt from "jsonwebtoken";
 
 import { env } from "../config/env";
+import { AppError } from "../utils/app-error";
+import { HTTP_STATUS } from "../constants/http-status";
+import { findUserById } from "../repositories/user.repository";
 
 export const registerUser = async (
   payload: RegisterUserPayload,
@@ -17,7 +20,7 @@ export const registerUser = async (
   const existingUser = await findUserByEmail(email);
 
   if (existingUser) {
-    throw new Error("Email already exists");
+    throw new AppError("Email already exists", HTTP_STATUS.CONFLICT);
   }
 
   // Step 2
@@ -39,13 +42,13 @@ export const loginUser = async (payload: LoginUserPayload): Promise<string> => {
   const user = await findUserByEmail(email);
 
   if (!user) {
-    throw new Error("Invalid credentials");
+    throw new AppError("Invalid credentials", HTTP_STATUS.UNAUTHORIZED);
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
-    throw new Error("Invalid credentials");
+    throw new AppError("Invalid credentials", HTTP_STATUS.UNAUTHORIZED);
   }
 
   const token = jwt.sign(
@@ -60,4 +63,19 @@ export const loginUser = async (payload: LoginUserPayload): Promise<string> => {
   );
 
   return token;
+};
+
+export const getProfile = async (userId: number) => {
+  const user = await findUserById(userId);
+
+  if (!user) {
+    throw new AppError("User not found", HTTP_STATUS.NOT_FOUND);
+  }
+
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    createdAt: user.created_at,
+  };
 };

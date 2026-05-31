@@ -14,3 +14,8 @@ export interface LoginUserPayload {
   email: string;
   password: string;
 }
+
+export interface JwtPayload {
+  userId: number;
+  email: string;
+}
