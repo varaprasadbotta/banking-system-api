@@ -37,3 +37,43 @@ export const depositMoney = async (
     newBalance,
   };
 };
+
+export const withdrawMoney = async (
+  accountNumber: number,
+  amount: number,
+  userId: number,
+) => {
+  const account = await findAccountByNumber(accountNumber);
+
+  if (!account) {
+    throw new AppError("Account not found", HTTP_STATUS.NOT_FOUND);
+  }
+
+  if (account.user_id !== userId) {
+    throw new AppError("Access denied", HTTP_STATUS.FORBIDDEN);
+  }
+
+  const currentBalance = Number(account.balance);
+
+  if (currentBalance < amount) {
+    throw new AppError("Insufficient balance", HTTP_STATUS.BAD_REQUEST);
+  }
+
+  const newBalance = currentBalance - amount;
+
+  await updateAccountBalance(account.id, newBalance);
+
+  await createTransaction(
+    account.id,
+    null,
+    "WITHDRAW",
+    amount,
+    "Cash Withdrawal",
+  );
+
+  return {
+    accountNumber: account.account_number,
+    withdrawnAmount: amount,
+    newBalance,
+  };
+};
